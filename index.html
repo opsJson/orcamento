@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<title>Gerador de Orçamentos</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+<section id="builder">
+	<h2>Novo Orçamento</h2>
+
+	<label>Cliente</label>
+	<div style="display:flex;gap:6px;align-items:center">
+		<input list="clientes" id="entrada-cliente" placeholder="Digite para buscar" style="flex:1">
+		<datalist id="clientes"></datalist>
+	</div>
+
+	<label style="margin-top:12px">Prazo de pagamento
+		<select id="termos-pagamento">
+			<option>À Vista</option>
+			<option>30 dias</option>
+			<option>30/60</option>
+			<option>30/60/90</option>
+		</select>
+	</label>
+
+	<h3 style="margin-top:22px">Itens</h3>
+	<div style="display:flex;gap:8px;align-items:flex-end">
+		<div style="flex:1">
+			<label>Código ou descrição</label>
+			<input id="busca-item" placeholder="Digite para buscar">
+		</div>
+		<div style="width:100px">
+			<label>Quantidade</label>
+			<input type="number" id="quantidade-item" value="1" min="1">
+		</div>
+		<button id="adicionar-item" style="height:38px">Adicionar</button>
+	</div>
+
+	<table id="tabela-itens" style="display:none">
+		<thead>
+			<tr>
+			<th>Código</th>
+			<th>Descrição</th>
+			<th>NCM</th>
+			<th class="numero">Quant.</th>
+			<th class="numero">Unit.</th>
+			<th class="numero">Subtotal</th>
+			<th>Ações</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+
+	<button id="gerar" style="margin-top:20px">Gerar PDF</button>
+	<button id="config-btn" class="small">Gerenciar Dados</button>
+</section>
+
+<section id="invoice">
+	<div id="conteudo-pdf">
+		<h1>Orçamento Nº <span id="numero-nota"></span></h1>
+			<div class="company">
+		</div>
+
+		<div class="section-title">Informações do Cliente</div>
+		<div id="cliente-nota" class="client"></div>
+
+		<div class="section-title">Itens do Orçamento</div>
+		<table class="invoice-table" id="itens-nota">
+			<thead>
+				<tr>
+				<th>Código</th>
+				<th>Descrição</th>
+				<th class="numero">NCM</th>
+				<th class="numero">Quant.</th>
+				<th class="numero">Unit.</th>
+				<th class="numero">Valor Total</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+
+		<table class="summary-table" id="resumo-nota"></table>
+
+		<div class="flex">
+			<div>
+				<div class="section-title">
+				Vencimentos <span id="condicoes-pagamento" style="font-weight:normal"></span>
+				</div>
+			</div>
+		</div>
+
+		<div class="section-title">Outras Informações</div>
+		<div class="other-info">
+			<p>Gerado em <span id="data-nota"></span></p>
+			<p>Gerado por https://opsjson.github.io/orcamento</p>
+		</div>
+	</div>
+</section>
+	
+<div class="modal" id="config-modal">
+	<div class="modal-content">
+		<span class="close">&times;</span>
+		<div class="tabs">
+			<div class="tab active" data-target="tab-clients">Clientes</div>
+			<div class="tab" data-target="tab-products">Produtos</div>
+			<div class="tab" data-target="tab-company">Minha Empresa</div>
+			<div class="tab" data-target="tab-orcamentos">Orçamentos</div>
+		</div>
+		
+		<div id="tab-clients" class="tab-content">
+			<button id="add-client-btn" class="small">+ Novo Cliente</button>
+			<div id="clients-list"></div>
+		</div>
+
+		<div id="tab-products" class="tab-content" style="display:none">
+			<button id="add-product-btn" class="small">+ Novo Produto</button>
+			<table id="products-table">
+				<thead><tr>
+				<th>Código</th><th>Descrição</th><th>NCM</th><th>Unit.</th><th>Ações</th>
+				</tr></thead>
+				<tbody></tbody>
+			</table>
+		</div>
+
+		<div id="tab-company" class="tab-content" style="display:none">
+			<form id="company-form">
+				<label>Nome<input type="text" id="company-name"></label>
+				<label>CNPJ<input type="text" id="company-cnpj"></label>
+				<label>Inscrição Estadual<input type="text" id="company-inscricaoEstadual"></label>
+				<label>Endereço<input type="text" id="company-endereco"></label>
+				<label>Cidade<input type="text" id="company-cidade"></label>
+				<label>Estado<input type="text" id="company-estado"></label>
+				<label>CEP<input type="text" id="company-cep"></label>
+				<label>Telefone<input type="text" id="company-telefone"></label>
+				<label>Email<input type="email" id="company-email"></label>
+				<label>Site<input type="text" id="company-site"></label>
+				<button type="submit">Salvar</button>
+			</form>
+		</div>
+
+		<div id="tab-orcamentos" class="tab-content" style="display:none">
+			<table id="orcamentos-table">
+				<thead>
+					<tr>
+					<th>ID</th>
+					<th>Cliente</th>
+					<th>CNPJ</th>
+					<th>Email</th>
+					<th>Total</th>
+					<th>Ações</th>
+				</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>
