@@ -1,166 +1,478 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br" class="light">
 <head>
-	<title>Gerador de Orçamentos</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Orçamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 	<link href="styles.css" rel="stylesheet">
-	<link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-file-invoice-dollar text-primary-600 dark:text-primary-400 text-2xl"></i>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-white">Gerador de<span class="text-primary-600 dark:text-primary-400"> Orçamento</span></h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <div class="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-medium">U</div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-<section id="builder">
-	<h2>Novo Orçamento</h2>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 justify-center">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 card-hover cursor-pointer border-l-4 border-primary-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes</p>
+                        <h3 class="text-2xl font-bold mt-1" id="clientCount">0</h3>
+                    </div>
+                    <div class="p-3 rounded-lg bg-primary-100 dark:bg-gray-700">
+                        <i class="fas fa-users text-primary-600 dark:text-primary-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 card-hover cursor-pointer border-l-4 border-green-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Produtos</p>
+                        <h3 class="text-2xl font-bold mt-1" id="productCount">0</h3>
+                    </div>
+                    <div class="p-3 rounded-lg bg-green-100 dark:bg-gray-700">
+                        <i class="fas fa-boxes text-green-600 dark:text-green-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 card-hover cursor-pointer border-l-4 border-yellow-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Orçamentos</p>
+                        <h3 class="text-2xl font-bold mt-1" id="quoteCount">0</h3>
+                    </div>
+                    <div class="p-3 rounded-lg bg-yellow-100 dark:bg-gray-700">
+                        <i class="fas fa-file-invoice text-yellow-600 dark:text-yellow-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	<label>Cliente</label>
-	<div style="display:flex;gap:6px;align-items:center">
-		<input list="clientes" id="entrada-cliente" placeholder="Digite para buscar" style="flex:1">
-		<datalist id="clientes"></datalist>
-	</div>
+        <!-- Navigation Tabs -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200 dark:border-gray-700">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showSection('orcamento')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300" data-target="orcamento">
+                        <i class="fas fa-file-invoice-dollar mr-2"></i> Orçamentos
+                    </button>
+                    <button onclick="showSection('historico')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300" data-target="historico">
+                        <i class="fas fa-history mr-2"></i> Histórico
+                    </button>
+                    <button onclick="showSection('clientes')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300" data-target="clientes">
+                        <i class="fas fa-users mr-2"></i> Clientes
+                    </button>
+                    <button onclick="showSection('produtos')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300" data-target="produtos">
+                        <i class="fas fa-boxes mr-2"></i> Produtos
+                    </button>
+                    <button onclick="showSection('empresa')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300" data-target="empresa">
+                        <i class="fas fa-building mr-2"></i> Minha Empresa
+                    </button>
+                </nav>
+            </div>
+        </div>
 
-	<label style="margin-top:12px">Prazo de pagamento
-		<select id="termos-pagamento">
-			<option>À Vista</option>
-			<option>30 dias</option>
-			<option>30/60</option>
-			<option>30/60/90</option>
-		</select>
-	</label>
+        <!-- Sections -->
+        <div class="fade-in">
+            <!-- Minha Empresa -->
+            <div id="empresa" class="section hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-building mr-2 text-primary-600 dark:text-primary-400"></i> Informações da Empresa
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <form id="formEmpresa" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="empresaNome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
+                                    <input type="text" id="empresaNome" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                                </div>
+                                <div>
+                                    <label for="empresaCnpj" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CNPJ</label>
+                                    <input type="text" id="empresaCnpj" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                                </div>
+                                <div>
+                                    <label for="empresaInscricaoEstadual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inscrição Estadual</label>
+                                    <input type="text" id="empresaInscricaoEstadual" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo da Empresa</label>
+                                    <div class="mt-1 flex items-center">
+                                        <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 mr-4">
+                                            <img id="logoPreview" src="" class="h-full w-full object-contain" style="display: none;">
+                                            <div id="logoPlaceholder" class="h-full w-full flex items-center justify-center text-gray-400">
+                                                <i class="fas fa-camera text-xl"></i>
+                                            </div>
+                                        </span>
+                                        <input type="file" id="logoEmpresa" accept="image/*">
+                                        <button type="button" onclick="document.getElementById('logoEmpresa').value = ''; document.getElementById('logoPreview').style.display = 'none'; document.getElementById('logoPlaceholder').style.display = 'flex';" class="ml-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">
+                                            Remover
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="empresaEndereco" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Endereço</label>
+                                    <input type="text" id="empresaEndereco" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="empresaCidade" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cidade</label>
+                                    <input type="text" id="empresaCidade" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="empresaEstado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
+                                    <select id="empresaEstado" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700"></select>
+                                </div>
+                                <div>
+                                    <label for="empresaTelefone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
+                                    <input type="tel" id="empresaTelefone" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="empresaCep" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CEP</label>
+                                    <input type="text" id="empresaCep" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="empresaSite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site</label>
+                                    <input type="url" id="empresaSite" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="empresaEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                                    <input type="email" id="empresaEmail" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
+                                    <i class="fas fa-save mr-2"></i> Salvar Informações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-	<h3 style="margin-top:22px">Itens</h3>
-	<div style="display:flex;gap:8px;align-items:flex-end">
-		<div style="flex:1">
-			<label>Código ou descrição</label>
-			<input id="busca-item" placeholder="Digite para buscar">
-		</div>
-		<div style="width:100px">
-			<label>Quantidade</label>
-			<input type="number" id="quantidade-item" value="1" min="1">
-		</div>
-		<button id="adicionar-item" style="height:38px">Adicionar</button>
-	</div>
+            <!-- Clientes -->
+            <div id="clientes" class="section hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-users mr-2 text-primary-600 dark:text-primary-400"></i> Gerenciar Clientes
+                        </h2>
+                        <button onclick="openClientModal()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i> Novo Cliente
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">CNPJ</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cidade/UF</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contato</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientesTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Nenhum cliente cadastrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-	<table id="tabela-itens" style="display:none">
-		<thead>
-			<tr>
-			<th>Código</th>
-			<th>Descrição</th>
-			<th>NCM</th>
-			<th class="numero">Quant.</th>
-			<th class="numero">Unit.</th>
-			<th class="numero">Subtotal</th>
-			<th>Ações</th>
-			</tr>
-		</thead>
-		<tbody></tbody>
-	</table>
+            <!-- Produtos -->
+            <div id="produtos" class="section hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-boxes mr-2 text-primary-600 dark:text-primary-400"></i> Gerenciar Produtos
+                        </h2>
+                        <button onclick="openProductModal()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i> Novo Produto
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Código</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Descrição</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">NCM</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="produtosTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Nenhum produto cadastrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-	<button id="gerar" style="margin-top:20px">Gerar PDF</button>
-	<button id="config-btn" class="small">Gerenciar Dados</button>
-</section>
+            <!-- Orçamentos -->
+            <div id="orcamento" class="section hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-file-invoice-dollar mr-2 text-primary-600 dark:text-primary-400"></i> Criar Novo Orçamento
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <form id="formOrcamento" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cliente</label>
+                                    <select id="clienteSelect" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                        <option value="">Selecione um cliente</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Validade (dias)</label>
+                                    <input type="number" id="validadeOrcamento" value="7" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                                <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                    <i class="fas fa-boxes mr-2 text-primary-600 dark:text-primary-400"></i> Itens do Orçamento
+                                </h3>
+                                
+                                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                    <div class="flex-1">
+                                        <select id="produtoSelect" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                            <option value="">Selecione um produto</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-24">
+                                        <input type="number" id="quantidade" placeholder="Qtd" min="1" value="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                    </div>
+                                    <button type="button" onclick="adicionarItem()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+                                        <i class="fas fa-plus mr-2"></i> Adicionar
+                                    </button>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table id="itensOrcamento" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                        <thead class="bg-gray-50 dark:bg-gray-700">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Produto</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço Unit.</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantidade</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
+                                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Nenhum item adicionado</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="flex justify-end mt-6">
+                                    <div class="text-right">
+                                        <div class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Total: <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">R$ <span id="totalOrcamento">0,00</span></span></div>
+                                        <button type="submit" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
+                                            <i class="fas fa-file-pdf mr-2"></i> Gerar PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-<section id="invoice">
-	<div id="conteudo-pdf">
-		<h1>Orçamento Nº <span id="numero-nota"></span></h1>
-			<div class="company">
-		</div>
+            <!-- Histórico de Orçamentos -->
+            <div id="historico" class="section hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <i class="fas fa-history mr-2 text-primary-600 dark:text-primary-400"></i> Histórico de Orçamentos
+                        </h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Últimos 30 orçamentos gerados</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Número</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Valor Total</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historicoTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Nenhum orçamento encontrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-		<div class="section-title">Informações do Cliente</div>
-		<div id="cliente-nota" class="client"></div>
+    <!-- Modal Cliente -->
+    <div id="clientModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="clientModalTitle">Novo Cliente</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <form id="formCliente" class="space-y-4">
+                        <input type="hidden" id="clienteId">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label for="clienteNome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
+                                <input type="text" id="clienteNome" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                            </div>
+                            <div>
+                                <label for="clienteCnpj" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CNPJ</label>
+                                <input type="text" id="clienteCnpj" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                            </div>
+                            <div>
+                                <label for="clienteInscricaoEstadual" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inscrição Estadual</label>
+                                <input type="text" id="clienteInscricaoEstadual" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="clienteEndereco" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Endereço</label>
+                                <input type="text" id="clienteEndereco" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="clienteCep" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CEP</label>
+                                <input type="text" id="clienteCep" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="clienteCidade" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cidade</label>
+                                    <input type="text" id="clienteCidade" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="clienteEstado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
+                                    <select id="clienteEstado" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700"></select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="clienteTelefone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
+                                <input type="tel" id="clienteTelefone" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="clienteEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                                <input type="email" id="clienteEmail" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                            <div>
+                                <label for="clienteSite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site</label>
+                                <input type="url" id="clienteSite" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                    <button type="button" onclick="closeClientModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="salvarCliente()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                        Salvar Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<div class="section-title">Itens do Orçamento</div>
-		<table class="invoice-table" id="itens-nota">
-			<thead>
-				<tr>
-				<th>Código</th>
-				<th>Descrição</th>
-				<th class="numero">NCM</th>
-				<th class="numero">Quant.</th>
-				<th class="numero">Unit.</th>
-				<th class="numero">Valor Total</th>
-				</tr>
-			</thead>
-			<tbody></tbody>
-		</table>
-
-		<table class="summary-table" id="resumo-nota"></table>
-
-		<div class="flex">
-			<div>
-				<div class="section-title">
-				Vencimentos <span id="condicoes-pagamento" style="font-weight:normal"></span>
-				</div>
-			</div>
-		</div>
-
-		<div class="section-title">Outras Informações</div>
-		<div class="other-info">
-			<p>Gerado em <span id="data-nota"></span></p>
-			<p>Gerado por https://opsjson.github.io/orcamento</p>
-		</div>
-	</div>
-</section>
-	
-<div class="modal" id="config-modal">
-	<div class="modal-content">
-		<span class="close">&times;</span>
-		<div class="tabs">
-			<div class="tab active" data-target="tab-clients">Clientes</div>
-			<div class="tab" data-target="tab-products">Produtos</div>
-			<div class="tab" data-target="tab-company">Minha Empresa</div>
-			<div class="tab" data-target="tab-orcamentos">Orçamentos</div>
-		</div>
-		
-		<div id="tab-clients" class="tab-content">
-			<button id="add-client-btn" class="small">+ Novo Cliente</button>
-			<div id="clients-list"></div>
-		</div>
-
-		<div id="tab-products" class="tab-content" style="display:none">
-			<button id="add-product-btn" class="small">+ Novo Produto</button>
-			<table id="products-table">
-				<thead><tr>
-				<th>Código</th><th>Descrição</th><th>NCM</th><th>Unit.</th><th>Ações</th>
-				</tr></thead>
-				<tbody></tbody>
-			</table>
-		</div>
-
-		<div id="tab-company" class="tab-content" style="display:none">
-			<form id="company-form">
-				<label>Nome<input type="text" id="company-name"></label>
-				<label>CNPJ<input type="text" id="company-cnpj"></label>
-				<label>Inscrição Estadual<input type="text" id="company-inscricaoEstadual"></label>
-				<label>Endereço<input type="text" id="company-endereco"></label>
-				<label>Cidade<input type="text" id="company-cidade"></label>
-				<label>Estado<input type="text" id="company-estado"></label>
-				<label>CEP<input type="text" id="company-cep"></label>
-				<label>Telefone<input type="text" id="company-telefone"></label>
-				<label>Email<input type="email" id="company-email"></label>
-				<label>Site<input type="text" id="company-site"></label>
-				<button type="submit">Salvar</button>
-			</form>
-		</div>
-
-		<div id="tab-orcamentos" class="tab-content" style="display:none">
-			<table id="orcamentos-table">
-				<thead>
-					<tr>
-					<th>ID</th>
-					<th>Cliente</th>
-					<th>CNPJ</th>
-					<th>Email</th>
-					<th>Total</th>
-					<th>Ações</th>
-				</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
-		</div>
-	</div>
-</div>
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Modal Produto -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="productModalTitle">Novo Produto</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <form id="formProduto" class="space-y-4">
+                        <input type="hidden" id="produtoId">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label for="produtoCodigo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código</label>
+                                <input type="text" id="produtoCodigo" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                            </div>
+                            <div>
+                                <label for="produtoDescricao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
+                                <input type="text" id="produtoDescricao" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                            </div>
+                            <div>
+                                <label for="produtoPreco" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço (R$)</label>
+                                <input type="number" id="produtoPreco" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="produtoNcm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">NCM</label>
+                                    <input type="text" id="produtoNcm" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                                </div>
+                                <div>
+                                    <label for="produtoUnidade" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unidade</label>
+                                    <input type="text" id="produtoUnidade" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700" value="un">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="salvarProduto()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                        Salvar Produto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 	<script src="script.js"></script>
 </body>
 </html>
